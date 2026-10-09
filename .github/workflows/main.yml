@@ -37,6 +37,26 @@ jobs:
           restore-keys: |
             news-state-
 
+      # 診斷：淨用內建指令，就算 pip 衰咗都跑到，用嚟睇檔案結構同 Secrets 狀態
+      - name: 環境診斷
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_IDS: ${{ secrets.TELEGRAM_CHAT_IDS }}
+        run: |
+          echo "=== 工作目錄 ==="
+          pwd
+          echo "=== 檔案結構 ==="
+          find . -maxdepth 3 -not -path './.git/*' -not -path '*/__pycache__*' | sort | head -60
+          echo "=== Python 版本 ==="
+          python3 --version
+          echo "=== Secrets 狀態（只顯示長度，唔會洩漏內容）==="
+          python3 - <<'PY'
+          import os
+          for k in ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_IDS"]:
+              v = os.environ.get(k, "") or ""
+              print(f"  {k}: {'✅ 已設定（長度 ' + str(len(v)) + '）' if v else '❌ 冇設定 / 名唔啱'}")
+          PY
+
       - name: 設定 Python
         uses: actions/setup-python@v5
         with:
