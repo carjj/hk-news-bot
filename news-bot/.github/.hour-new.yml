@@ -1,0 +1,96 @@
+
+name: 每小時中文新聞推送
+
+on:
+  schedule:
+    # UTC 時間；香港時間 = UTC+8。下面 = 香港時間每小時的 08 分
+    - cron: "8 * * * *"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "只預覽、唔真的發送"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: hourly-news
+  cancel-in-progress: false
+
+jobs:
+  push-news:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      TZ: Asia/Hong_Kong
+    steps:
+      - name: 取出程式碼
+        uses: actions/checkout@v4
+
+      # 去重記錄：優先由 cache 還原，就算 repo 冇 state/ 都唔會出事
+      - name: 還原去重記錄
+        uses: actions/cache@v4
+        with:
+          path: state
+          key: news-state-${{ github.run_id }}
+          restore-keys: |
+            news-state-
+
+      - name: 設定 Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: 安裝套件
+        run: pip install -r requirements.txt
+
+      # 體檢：驗 Token、Chat ID、Bot 權限；只印長度同名稱，唔會洩漏秘密
+      - name: 檢查設定
+        continue-on-error: true
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_IDS: ${{ secrets.TELEGRAM_CHAT_IDS }}
+        run: python check_setup.py
+
+      - name: 抓取並推送新聞
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_IDS: ${{ secrets.TELEGRAM_CHAT_IDS }}
+          # 以下全部可選，唔設定就用 config.yaml 嘅預設值
+          MAX_TOTAL: ${{ vars.MAX_TOTAL }}
+          MAX_AGE_HOURS: ${{ vars.MAX_AGE_HOURS }}
+          SECTIONS: ${{ vars.SECTIONS }}
+          MODE: ${{ vars.MODE }}
+          QUIET_HOURS: ${{ vars.QUIET_HOURS }}
+          DISABLE_PREVIEW: ${{ vars.DISABLE_PREVIEW }}
+        run: |
+          if [ "${{ inputs.dry_run }}" = "true" ]; then
+            python main.py --dry-run
+          else
+            python main.py
+          fi
+
+      - name: 儲存去重記錄（避免重複推送）
+        if: always()
+        continue-on-error: true
+        run: |
+          mkdir -p state
+          if [ ! -f state/sent.json ]; then
+            echo '{"updated": null, "count": 0, "sent": {}}' > state/sent.json
+          fi
+          git config user.name "news-bot"
+          git config user.email "news-bot@users.noreply.github.com"
+          git add state/sent.json
+          if git diff --staged --quiet; then
+            echo "去重記錄冇變動，唔使 commit"
+          else
+            git commit -m "chore: update news state [skip ci]"
+            for i in 1 2 3; do
+              git pull --rebase --autostash origin "${GITHUB_REF_NAME}" && git push && break
+              echo "push 失敗，重試 $i…"
+              sleep 5
+            done
+          fi
