@@ -1,0 +1,402 @@
+# ============================================================
+#  新聞來源設定  ·  全部經過實測可用（繁簡中文）
+#  你可以自由增刪；category 決定會放入邊個版塊
+# ============================================================
+
+settings:
+  # 每次推送最多幾單新聞（各版塊相加）
+  max_total: 14
+  # 同一個版塊入面，同一間媒體最多出幾單（避免單一媒體洗版）
+  max_per_source: 2
+  # 兩次推送之間最短相隔幾多分鐘（防止 GitHub cron + cron-job.org 重複推）
+  min_interval_minutes: 45
+  # 只推送呢個小時數內發佈 / 更新的新聞（舊嘢唔推）
+  max_age_hours: 12
+  # 相似標題視為「同一單新聞」的門檻（0–1，越大越嚴）
+  dupe_threshold: 0.42
+  # 標題最少要有幾多成中文字先當中文（濾走英文新聞）
+  cjk_min_ratio: 0.25
+  # 冇新新聞時唔好出空訊息
+  skip_if_empty: true
+
+# 版塊：決定推送順序、數量同開關
+sections:
+  - key: hk
+    title: "🇭🇰 香港"
+    limit: 6
+    enabled: true
+  - key: world
+    title: "🌍 國際"
+    limit: 6
+    enabled: true
+  - key: finance
+    title: "💰 財經"
+    limit: 3
+    enabled: false      # 想要財經版塊改做 true
+  - key: tech
+    title: "🔬 科技"
+    limit: 3
+    enabled: false      # 想要科技版塊改做 true
+
+# 同一單新聞有幾間媒體報道時，優先顯示邊間（越前越優先）
+source_priority:
+  - 香港電台
+  - RTHK
+  - 香港01
+  - 明報
+  - 星島頭條
+  - 星島
+  - 信報
+  - 東方日報
+  - 有線新聞
+  - Now 新聞
+  - 香港經濟日報
+  - 頭條日報
+  - BBC
+  - 德國之聲
+  - RFI
+  - 美國之音
+  - 中央社
+  - 公視
+  - 聯合報
+  - 自由時報
+  - ETtoday
+  - Yahoo
+  - Google News
+
+# 自動判斷「呢單係香港新聞定國際新聞」
+classify:
+  # 標題有這些字 → 明顯係外地事件（即使由香港媒體報道，都歸國際版）
+  foreign_title_keywords:
+    - 美國
+    - 中國
+    - 內地
+    - 大陸
+    - 台灣
+    - 台北
+    - 高雄
+    - 日本
+    - 東京
+    - 韓國
+    - 首爾
+    - 北韓
+    - 平壤
+    - 俄羅斯
+    - 莫斯科
+    - 烏克蘭
+    - 基輔
+    - 以色列
+    - 加沙
+    - 伊朗
+    - 伊拉克
+    - 敘利亞
+    - 法國
+    - 巴黎
+    - 德國
+    - 柏林
+    - 英國
+    - 倫敦
+    - 歐盟
+    - 北約
+    - 聯合國
+    - 印度
+    - 東盟
+    - 澳洲
+    - 特朗普
+    - 普京
+    - 澤連斯基
+    - 習近平
+    - 白宮
+    - 五角大廈
+    - 加州
+    - 紐約
+  # 來源名有這些字 → 香港新聞
+  hk_source_keywords:
+    - 香港01
+    - 香港電台
+    - RTHK
+    - 星島頭條
+    - 頭條日報
+    - 明報
+    - 東方日報
+    - 信報
+    - Now 新聞
+    - 有線新聞
+    - 香港經濟日報
+    - 巴士的報
+    - 點新聞
+    - 香港商報
+    - 文匯報
+    - 大公報
+    - 無綫
+    - TVB
+    - 橙新聞
+    - 香港
+    - 港聞
+    - 港股
+  # 來源名有這些字 → 海外華文媒體，一律唔當香港新聞
+  overseas_source_keywords:
+    - 加拿大
+    - 溫哥華
+    - 多倫多
+    - 卡加利
+    - 美西
+    - 美東
+    - 紐約
+    - 三藩市
+    - 舊金山
+    - 洛杉磯
+    - 澳洲
+    - 悉尼
+    - 墨爾本
+    - 紐西蘭
+    - 英國
+    - 倫敦
+    - 新加坡
+    - 馬來西亞
+    - 歐洲
+  # 標題有這些字 → 香港新聞
+  hk_title_keywords:
+    - 香港
+    - 港鐵
+    - 港島
+    - 九龍
+    - 新界
+    - 屯門
+    - 沙田
+    - 荃灣
+    - 觀塘
+    - 元朗
+    - 大埔
+    - 旺角
+    - 中環
+    - 灣仔
+    - 銅鑼灣
+    - 深水埗
+    - 將軍澳
+    - 天水圍
+    - 機場
+    - 特區政府
+    - 特首
+    - 行政長官
+    - 立法會
+    - 區議會
+    - 議員
+    - 政府總部
+    - 房屋局
+    - 房委會
+    - 公屋
+    - 居屋
+    - 醫管局
+    - 康文署
+    - 入境處
+    - 海關
+    - 警務處
+    - 警方
+    - 廉政公署
+    - 天文台
+    - 施政報告
+    - 財政預算案
+    - 財政司
+    - 恒指
+    - 港交所
+    - 北水
+    - 強積金
+    - 皇崗
+    - 深圳灣
+    - 高鐵西九
+
+# 國際版塊專用：邊間媒體優先（國際通訊社行先，香港媒體報道國際新聞排後）
+world_source_priority:
+  - BBC
+  - 德國之聲
+  - RFI
+  - 美國之音
+  - 中央社
+  - 公視
+  - 聯合報
+  - 自由時報
+  - ETtoday
+  - 香港01
+  - 星島頭條
+  - 香港電台
+  - 明報
+  - 東方日報
+  - 信報
+  - Now 新聞
+  - 有線新聞
+  - 頭條日報
+  - 香港經濟日報
+  - AM730
+  - Yahoo
+  - Google News
+
+# 標題顯示上限（太長嘅節目表／數據標題會被截短）
+max_title_chars: 68
+
+# 來源名有這些字 → 成個媒體跳過（財經數據頁、海外華人社區生活資訊等）
+block_sources:
+  # 財經數據頁（唔係新聞）
+  - Investing.com
+  - 智通財經
+  - Yahoo奇摩股市
+  - 鉅亨網
+  # 海外華人社區生活資訊門戶（想保留自行刪除）
+  - 加拿大星島日報
+  - Sing Tao Daily 星島日報加拿大
+  - 加西网
+  - 加西網
+  - 溫哥華
+  - 多倫多
+  - 超級生活
+  - 51.ca
+  - 約克論壇
+
+# 標題含以下關鍵字直接丟棄（廣告 / 副刊 / 垃圾內容）
+block_keywords:
+  - 副刊
+  - 專欄
+  - 星座
+  - 運程
+  - 生肖
+  - 塔羅
+  - 限時優惠
+  - 折扣碼
+  - 優惠碼
+  - 抽獎
+  - 送禮
+  - 賽馬會
+  - 六合彩
+  - 波盤
+  - 足球推介
+  - 社評摘要
+  - 【重溫】
+  - 持股解析
+  - 中文廣播
+  - 中文广播
+  - 節目預告
+  - 系統維護
+  - 暫停服務
+  - 招募義工
+  - 導賞團
+  - 公開講座
+  - 今期號碼
+  - 讀者投稿
+  # 生活消閒／開箱文（唔係新聞）
+  - 一次玩
+  - 這樣玩
+  - 好玩
+  - 景點
+  - 打卡
+  - 美食
+  - 開箱
+  - CP值
+  - 比價
+  - 團購
+  - 網購
+  - 折扣
+  - 穿搭
+  - 減肥
+  - 養生
+  - 命理
+  - 開運
+  - 招財
+  - 好市多
+  - 團購
+  - 試用心得
+  - 評測
+  - 超商
+  - 手搖飲
+
+sources:
+  # ---------- 香港 ----------
+  - name: "Google 新聞 · 香港頭條"
+    url: "https://news.google.com/rss?hl=zh-HK&gl=HK&ceid=HK:zh-Hant"
+    category: hk
+
+  - name: "Google 新聞 · 港聞"
+    url: "https://news.google.com/rss/headlines/section/topic/NATION?hl=zh-HK&gl=HK&ceid=HK:zh-Hant"
+    category: hk
+
+  - name: "Google 新聞 · 香港 01"
+    url: "https://news.google.com/rss/search?q=site:hk01.com&hl=zh-HK&gl=HK&ceid=HK:zh-Hant"
+    category: hk
+
+  - name: "Google 新聞 · 香港電台"
+    url: "https://news.google.com/rss/search?q=site:rthk.hk&hl=zh-HK&gl=HK&ceid=HK:zh-Hant"
+    category: hk
+
+  - name: "Google 新聞 · 星島頭條"
+    url: "https://news.google.com/rss/search?q=site:stheadline.com&hl=zh-HK&gl=HK&ceid=HK:zh-Hant"
+    category: hk
+
+  - name: "Google 新聞 · 香港突發"
+    url: "https://news.google.com/rss/search?q=%E9%A6%99%E6%B8%AF+%E7%AA%81%E7%99%BC+when:12h&hl=zh-HK&gl=HK&ceid=HK:zh-Hant"
+    category: hk
+
+  # ---------- 國際 ----------
+  - name: "Google 新聞 · 國際"
+    url: "https://news.google.com/rss/headlines/section/topic/WORLD?hl=zh-HK&gl=HK&ceid=HK:zh-Hant"
+    category: world
+
+  - name: "Google 新聞 · 兩岸"
+    url: "https://news.google.com/rss/search?q=%E5%85%A9%E5%B2%B8+when:12h&hl=zh-HK&gl=HK&ceid=HK:zh-Hant"
+    category: world
+
+  - name: "BBC 中文"
+    url: "https://feeds.bbci.co.uk/zhongwen/trad/rss.xml"
+    category: world
+
+  - name: "德國之聲中文"
+    url: "https://rss.dw.com/rdf/rss-chi-all"
+    category: world
+
+  - name: "RFI 法國國際廣播（中文）"
+    url: "https://www.rfi.fr/cn/general/rss"
+    category: world
+
+  - name: "美國之音中文"
+    url: "https://www.voachinese.com/rss/"
+    category: world
+
+  - name: "中央社 · 政治"
+    url: "https://feeds.feedburner.com/rsscna/politics"
+    category: world
+
+  - name: "中央社 · 文化"
+    url: "https://feeds.feedburner.com/rsscna/culture"
+    category: world
+
+  - name: "ETtoday 新聞雲"
+    url: "https://feeds.feedburner.com/ettoday/news"
+    category: world
+
+  - name: "自由時報"
+    url: "https://news.ltn.com.tw/rss/all.xml"
+    category: world
+
+  - name: "公視新聞網"
+    url: "https://news.pts.org.tw/xml/newsfeed.xml"
+    category: world
+
+  # ---------- 財經（要開版塊先會出）----------
+  - name: "Google 新聞 · 港股財經"
+    url: "https://news.google.com/rss/search?q=%E6%B8%AF%E8%82%A1+when:12h&hl=zh-HK&gl=HK&ceid=HK:zh-Hant"
+    category: finance
+
+  - name: "Google 新聞 · 財經"
+    url: "https://news.google.com/rss/headlines/section/topic/BUSINESS?hl=zh-HK&gl=HK&ceid=HK:zh-Hant"
+    category: finance
+
+  - name: "中央社 · 財經"
+    url: "https://feeds.feedburner.com/rsscna/finance"
+    category: finance
+
+  # ---------- 科技（要開版塊先會出）----------
+  - name: "Google 新聞 · 科技"
+    url: "https://news.google.com/rss/headlines/section/topic/TECHNOLOGY?hl=zh-HK&gl=HK&ceid=HK:zh-Hant"
+    category: tech
+
+  - name: "中央社 · 科技"
+    url: "https://feeds.feedburner.com/rsscna/technology"
+    category: tech

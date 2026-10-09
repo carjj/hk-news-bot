@@ -1,0 +1,313 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>cron-job.org 設定教學 · 雙重定時保險</title>
+<style>
+  :root{--bg:#f6f8fa;--card:#fff;--line:#d0d7de;--text:#1f2328;--muted:#59636e;
+    --green:#1f883d;--blue:#0969da;--red:#cf222e;--amber:#9a6700;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+    font:16px/1.75 -apple-system,BlinkMacSystemFont,"PingFang HK","Microsoft JhengHei","Noto Sans TC",sans-serif;}
+  .wrap{max-width:880px;margin:0 auto;padding:32px 18px 80px}
+  header{background:linear-gradient(135deg,#0d1117,#8250df);color:#fff;border-radius:14px;padding:26px 24px;margin-bottom:22px}
+  header h1{margin:0 0 6px;font-size:23px}
+  header p{margin:0;color:#d2c8e8;font-size:14px}
+  .step{background:var(--card);border:1px solid var(--line);border-radius:12px;margin-bottom:20px;overflow:hidden}
+  .step-hd{display:flex;gap:14px;align-items:flex-start;padding:16px 20px;border-bottom:1px solid var(--line);background:#f6f8fa}
+  .num{flex:0 0 32px;height:32px;border-radius:50%;background:var(--blue);color:#fff;
+    display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px}
+  .num.p{background:#8250df}
+  .step-hd h2{margin:0;font-size:17px}
+  .step-hd .sub{margin:2px 0 0;font-size:13px;color:var(--muted)}
+  .step-bd{padding:18px 20px}
+  .step-bd ol{margin:0 0 14px;padding-left:22px}
+  .step-bd li{margin:7px 0}
+  .step-bd p{margin:0 0 12px}
+  .pill{display:inline-block;background:#ddf4ff;border:1px solid #b6e3ff;color:#0969da;
+    border-radius:6px;padding:2px 9px;font-size:13px;font-weight:600}
+  .pill.g{background:#dafbe1;border-color:#a7f3d0;color:#1a7f37}
+  .pill.r{background:#ffebe9;border-color:#ffcecb;color:#cf222e}
+  .pill.p{background:#fbefff;border-color:#d8b9ff;color:#8250df}
+  .box{background:#f6f8fa;border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin:12px 0;font-size:14px}
+  .box.warn{background:#fff8c5;border-color:#d4a72c}
+  .box.ok{background:#dafbe1;border-color:#a7f3d0}
+  .box.bad{background:#ffebe9;border-color:#ffcecb}
+  .box b.title{display:block;margin-bottom:4px}
+  table{width:100%;border-collapse:collapse;margin:14px 0;font-size:14px}
+  th,td{border:1px solid var(--line);padding:8px 11px;text-align:left;vertical-align:top}
+  th{background:#f6f8fa;font-size:13.5px}
+  td.good{color:#1a7f37} td.bad{color:#cf222e}
+  .mock{border:1px solid var(--line);border-radius:8px;overflow:hidden;margin:14px 0;background:#fff}
+  .mock-bar{background:#f6f8fa;border-bottom:1px solid var(--line);padding:7px 12px;font-size:12.5px;color:var(--muted)}
+  .mock-body{padding:14px}
+  .field{border:1px solid var(--line);border-radius:6px;padding:8px 10px;margin:8px 0;background:#fff;font-size:14px}
+  .field .lbl{font-size:12.5px;font-weight:600;display:block;margin-bottom:3px}
+  .field .val{font-family:ui-monospace,Menlo,monospace;font-size:13px;color:#0550ae;word-break:break-all}
+  .ghbtn{display:inline-block;background:var(--green);color:#fff;border-radius:6px;
+    padding:5px 14px;font-size:13.5px;font-weight:600}
+  .ghbtn.purple{background:#8250df}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:12px 0}
+  .kv{background:#f6f8fa;border:1px solid var(--line);border-radius:8px;padding:10px 12px;font-size:13.5px}
+  .kv b{display:block;font-size:12px;color:var(--muted);margin-bottom:3px;font-weight:600}
+  .cmd{position:relative;background:#0d1117;border-radius:8px;padding:12px 44px 12px 14px;margin:10px 0}
+  .cmd code{color:#e6edf3;font-family:ui-monospace,Menlo,monospace;font-size:12.5px;
+    white-space:pre-wrap;word-break:break-all;line-height:1.6}
+  .cp{position:absolute;top:8px;right:8px;background:#21262d;border:1px solid #30363d;color:#c9d1d9;
+    border-radius:6px;padding:3px 9px;font-size:11.5px;cursor:pointer}
+  .cp:hover{background:#30363d}.cp.done{background:#238636;border-color:#2ea043;color:#fff}
+  input.gen{border:1px solid var(--line);border-radius:6px;padding:7px 10px;font-size:14px;width:100%;
+    font-family:ui-monospace,Menlo,monospace}
+  .out{background:#0d1117;color:#7ee787;border-radius:8px;padding:11px 13px;margin-top:10px;
+    font-family:ui-monospace,Menlo,monospace;font-size:12.5px;word-break:break-all;line-height:1.7}
+  .out .c{color:#8b949e}
+  footer{text-align:center;color:var(--muted);font-size:13px;margin-top:30px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <h1>⏰ 加埋 cron-job.org · 雙重定時保險</h1>
+  <p>令新聞準點到分鐘，兼防止 GitHub 因 60 日冇活動而停用排程</p>
+</header>
+
+<div class="box ok"><b class="title">💡 點解要兩個一齊用？</b>
+  <table style="margin:8px 0 0">
+    <tr><th></th><th>GitHub Actions 內置 cron</th><th>cron-job.org</th></tr>
+    <tr><td>準時度</td><td class="bad">繁忙時延遲 5–30 分鐘</td><td class="good">準點到分鐘 ✅</td></tr>
+    <tr><td>repo 60 日冇活動</td><td class="bad">GitHub 會自動停用</td><td class="good">照 ping 唔受影響 ✅</td></tr>
+    <tr><td>呢個方案嘅角色</td><td><b>後備</b>（每小時 08 分）</td><td><b>主力</b>（每小時 00 分）</td></tr>
+  </table>
+  <b>我已經喺程式加咗「最短推送間隔鎖」（預設 45 分鐘）</b> ——
+  所以兩邊同時觸發都<b>唔會</b>重複推兩次，邊個先到邊個推，另一個會自動跳過。
+</div>
+
+<!-- ================= STEP 1 ================= -->
+<div class="step">
+  <div class="step-hd"><div class="num p">1</div>
+    <div><h2>開一條 GitHub Personal Access Token（PAT）</h2>
+      <p class="sub">畀 cron-job.org 一個「撳掣」嘅權限，只限 Actions</p></div></div>
+  <div class="step-bd">
+    <ol>
+      <li>去 <span class="pill">github.com/settings/personal-access-tokens</span>
+        （Settings → Developer settings → Personal access tokens → <b>Fine-grained tokens</b>）</li>
+      <li>撳 <b>Generate new token</b></li>
+      <li>填：
+        <div class="field"><span class="lbl">Token name</span>cron-job-news</div>
+        <div class="field"><span class="lbl">Expiration</span>揀 <b>1 年</b>（最長 1 年，到期要換）</div>
+      </li>
+      <li><b>Repository access</b> → 揀 <span class="pill">● Only select repositories</span>
+        → 揀你個 <code>hk-news-bot</code></li>
+      <li><b>Permissions</b> → Repository permissions → 搵到 <b>Actions</b> →
+        揀 <span class="pill g">● Read and write</span>
+        <div class="box warn" style="margin-top:10px">
+          ⚠️ <b>只開 Actions 就夠，千祈唔好開多</b>。<br>
+          如果之後試跑出現 <code>403 Resource not accessible</code>，
+          就返嚟加埋 <b>Contents: Read and write</b>。
+        </div>
+      </li>
+      <li>撳 <b>Generate token</b> → <b>即刻抄低</b>（開頭係 <code>github_pat_</code>）</li>
+    </ol>
+
+    <div class="mock">
+      <div class="mock-bar">GitHub · New fine-grained personal access token</div>
+      <div class="mock-body">
+        <div class="field"><span class="lbl">Token name</span>cron-job-news</div>
+        <div class="field"><span class="lbl">Resource owner</span>你的帳號</div>
+        <div class="field"><span class="lbl">Repository access</span>
+          ● Only select repositories → hk-news-bot</div>
+        <div style="font-size:13.5px;margin:12px 0 6px"><b>Permissions › Repository permissions</b></div>
+        <div style="font-size:14px;border:1px solid var(--line);border-radius:8px">
+          <div style="padding:8px 12px;border-bottom:1px solid var(--line)">
+            Actions　<span class="pill g">Read and write ✅</span>
+          </div>
+          <div style="padding:8px 12px;color:var(--muted)">
+            其他全部　<span class="pill">No access（唔好改）</span>
+          </div>
+        </div>
+        <div style="margin-top:12px"><span class="ghbtn">Generate token</span></div>
+      </div>
+    </div>
+
+    <div class="box bad"><b class="title">❌ 呢條 token 唔好放落 GitHub Secrets</b>
+      佢係畀 <b>cron-job.org</b> 用嘅，要貼去 cron-job.org 嘅 header 入面，
+      <b>唔係</b> repo 嘅 Secrets。（repo Secrets 入面繼續淨係放
+      <code>TELEGRAM_BOT_TOKEN</code> 同 <code>TELEGRAM_CHAT_IDS</code>）
+    </div>
+  </div>
+</div>
+
+<!-- ================= STEP 2 ================= -->
+<div class="step">
+  <div class="step-hd"><div class="num p">2</div>
+    <div><h2>產生你專屬嘅網址同內容</h2>
+      <p class="sub">填低你嘅 GitHub 名同 repo 名，自動出</p></div></div>
+  <div class="step-bd">
+    <div class="grid">
+      <div><label style="font-size:13px;font-weight:600">GitHub 用戶名</label>
+        <input class="gen" id="owner" placeholder="例如 hk-news-lover" style="margin-top:4px"></div>
+      <div><label style="font-size:13px;font-weight:600">Repo 名</label>
+        <input class="gen" id="repo" placeholder="例如 hk-news-bot" style="margin-top:4px"></div>
+    </div>
+    <div class="out" id="out"><span class="c">（填完上面兩格會自動產生）</span></div>
+
+    <div class="box"><b class="title">📋 點知自己嘅用戶名？</b>
+      去 github.com 登入，右上角撳頭像，Menu 最頂嗰行就係；
+      或者睇你 repo 嘅網址：<code>github.com/<b>呢段就係用戶名</b>/repo名</code>
+    </div>
+  </div>
+</div>
+
+<!-- ================= STEP 3 ================= -->
+<div class="step">
+  <div class="step-hd"><div class="num p">3</div>
+    <div><h2>去 cron-job.org 開一個 Cronjob</h2>
+      <p class="sub">免費，唔使信用卡</p></div></div>
+  <div class="step-bd">
+    <ol>
+      <li>去 <span class="pill p">cron-job.org</span> → 右上角 <b>Sign up</b>（email 註冊，要收驗證信）</li>
+      <li>登入 → 左邊 <b>Cronjobs</b> → 撳 <b>CREATE CRONJOB</b></li>
+      <li>填以下資料：</li>
+    </ol>
+
+    <div class="mock">
+      <div class="mock-bar">cron-job.org · Create cronjob</div>
+      <div class="mock-body">
+        <div class="field"><span class="lbl">Title</span>每小時中文新聞</div>
+        <div class="field"><span class="lbl">URL</span>
+          <span class="val">https://api.github.com/repos/OWNER/REPO/actions/workflows/hourly-news.yml/dispatches</span></div>
+        <div style="font-size:13.5px;margin:10px 0 4px"><b>Request method</b></div>
+        <div><span class="pill p">● POST</span>　<span style="color:#8c959f">○ GET</span></div>
+        <div style="font-size:13.5px;margin:12px 0 4px"><b>Schedule</b></div>
+        <div style="font-size:14px">
+          Every <b>1</b> hour(s) ▾　at minute <b>0</b><br>
+          <span style="color:var(--muted);font-size:13px">Timezone: <b>Asia/Hong_Kong</b> ▾
+          （冇嘅話揀 UTC，然後 hour 減 8）</span>
+        </div>
+        <div style="margin-top:12px"><span class="ghbtn purple">CREATE</span></div>
+      </div>
+    </div>
+
+    <p><b>跟住撳 「ADVANCED」／「Headers & Body」 展開，填呢啲：</b></p>
+
+    <div class="field"><span class="lbl">① Request headers（要加 4 條）</span>
+      <div class="cmd" style="margin:6px 0 0"><button class="cp">複製</button><code>Accept: application/vnd.github+json
+Authorization: Bearer github_pat_XXXXXXXXXXXXXXXXXXXX
+X-GitHub-Api-Version: 2022-11-28
+Content-Type: application/json</code></div>
+      <div class="box warn" style="margin-top:8px">
+        ⚠️ 第二行 <code>Bearer</code> 後面貼你第 1 步抄低嘅 token，
+        <b>Bearer 同 token 之間要有一個空格</b>。
+      </div>
+    </div>
+
+    <div class="field"><span class="lbl">② Request body</span>
+      <div class="cmd" style="margin:6px 0 0"><button class="cp">複製</button><code>{"ref":"main"}</code></div>
+      <div class="box warn" style="margin-top:8px">
+        ⚠️ <code>main</code> 要同你 repo 嘅分支名一致。
+        去 GitHub repo 主頁睇左上角個分支名：如果係 <code>master</code> 就要寫
+        <code>{"ref":"master"}</code>。
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ================= STEP 4 ================= -->
+<div class="step">
+  <div class="step-hd"><div class="num p">4</div>
+    <div><h2>試跑，確認成功</h2><p class="sub">30 秒內知結果</p></div></div>
+  <div class="step-bd">
+    <ol>
+      <li>喺 cron-job.org 個 cronjob 入面，撳 <b>TEST RUN</b>（或 <b>Run now</b>）</li>
+      <li>睇結果：
+        <div class="grid">
+          <div class="kv"><b>HTTP 狀態</b><span style="color:#1a7f37">204 No Content ✅</span></div>
+          <div class="kv"><b>意思</b>GitHub 收到指令，成功觸發</div>
+        </div>
+      </li>
+      <li>返去 GitHub → <b>Actions</b> 頁，應該見到一個新嘅 run，
+          觸發方式寫住 <span class="pill">workflow_dispatch</span></li>
+      <li>等 30–60 秒 → Telegram 收到新聞 🎉</li>
+    </ol>
+
+    <div class="box bad"><b class="title">❌ 出錯點算？</b>
+      <table style="margin:8px 0 0">
+        <tr><th>HTTP / 錯誤</th><th>原因</th><th>點執</th></tr>
+        <tr><td><b>401</b> Bad credentials</td><td>Token 錯／過期／抄漏</td><td>重新 generate token，注意要有 <code>Bearer </code> 同空格</td></tr>
+        <tr><td><b>403</b> Resource not accessible</td><td>權限唔夠</td><td>PAT 要有 <b>Actions: Read and write</b>；得唔到就加埋 <b>Contents: Read and write</b></td></tr>
+        <tr><td><b>404</b> Not Found</td><td>網址錯</td><td>檢查 OWNER／REPO 有冇打錯；workflow 檔名一定要 <code>hourly-news.yml</code></td></tr>
+        <tr><td><b>204</b> 但 Actions 冇反應</td><td>分支名錯</td><td>body 嘅 <code>ref</code> 要改做你實際分支名（<code>main</code> / <code>master</code>）</td></tr>
+        <tr><td><b>422</b></td><td>body 格式錯</td><td>一定要 <code>{"ref":"main"}</code>，雙引號，唔可以單引號</td></tr>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ================= 實際運作 ================= -->
+<div class="step">
+  <div class="step-hd"><div class="num" style="background:var(--green)">✓</div>
+    <div><h2>之後實際會點運作？</h2><p class="sub">兩個 trigger，一個鎖，唔會重複</p></div></div>
+  <div class="step-bd">
+    <table>
+      <tr><th>時間（HKT）</th><th>邊個觸發</th><th>結果</th></tr>
+      <tr><td>13:00</td><td>cron-job.org（主力）</td><td class="good">✅ 推送</td></tr>
+      <tr><td>13:08</td><td>GitHub Actions 內置 cron（後備）</td><td class="good">⏸️ 距上次 8 分鐘 &lt; 45 → 自動跳過</td></tr>
+      <tr><td>14:00</td><td>cron-job.org</td><td class="good">✅ 推送</td></tr>
+      <tr><td>—</td><td>cron-job.org 死機嗰陣</td><td class="good">✅ 13:08 / 14:08 嗰個後備會頂上</td></tr>
+    </table>
+
+    <div class="box ok"><b class="title">🎉 即係：邊個先到邊個推，另一個自動讓開</b>
+      間隔鎖嘅分鐘數可以改：<code>config.yaml</code> 嘅
+      <code>min_interval_minutes: 45</code>，或 GitHub Variables 加
+      <code>MIN_INTERVAL_MINUTES</code>。<br>
+      <span style="font-size:13.5px">想兩個 trigger 都出到嘢（例如半個鐘一次）就改細佢，例如 <code>25</code>。</span>
+    </div>
+
+    <div class="box"><b class="title">💡 cron-job.org 嘅限制（對我哋冇影響）</b>
+      30 秒連線逾時 —— 但我哋只係叫 GitHub「開始跑」，GitHub 秒回 204，
+      <b>唔會等 workflow 跑完</b>，所以完全冇問題。<br>
+      免費版最短 1 分鐘一次；我哋一小時一次，綽綽有餘。
+    </div>
+
+    <div class="box warn"><b class="title">🔔 建議開埋失敗通知</b>
+      cron-job.org 個 cronjob 入面有 <b>Notifications</b>，
+      可以設定失敗時 email 通知你 —— 咁 GitHub 嗰邊出事你就即刻知。
+    </div>
+  </div>
+</div>
+
+<footer>
+  ⏰ cron-job.org × GitHub Actions 雙重定時 · 有嘢唔明隨時問我<br>
+  <span style="font-size:12px">（本頁為介面示意圖，實際畫面可能略有不同）</span>
+</footer>
+
+</div>
+
+<script>
+function build(){
+  var o=document.getElementById('owner').value.trim()||'OWNER';
+  var r=document.getElementById('repo').value.trim()||'REPO';
+  document.getElementById('out').innerHTML =
+    '<span class="c">URL：</span>\n'+
+    'https://api.github.com/repos/'+o+'/'+r+'/actions/workflows/hourly-news.yml/dispatches\n\n'+
+    '<span class="c">Body：</span>\n'+
+    '{"ref":"main"}';
+}
+document.getElementById('owner').addEventListener('input',build);
+document.getElementById('repo').addEventListener('input',build);
+build();
+
+document.querySelectorAll('.cp').forEach(function(btn){
+  btn.addEventListener('click',function(){
+    var code=this.parentElement.querySelector('code').innerText;
+    navigator.clipboard.writeText(code).then(function(){
+      btn.textContent='已複製 ✓';btn.classList.add('done');
+      setTimeout(function(){btn.textContent='複製';btn.classList.remove('done');},1600);
+    });
+  });
+});
+</script>
+</body>
+</html>
