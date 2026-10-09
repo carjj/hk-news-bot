@@ -1,115 +1,214 @@
-name: 每小時中文新聞推送
+# ============================================================
+#  新聞來源設定  ·  全部經過實測可用（繁簡中文）
+#  你可以自由增刪；category 決定會放入邊個版塊
+# ============================================================
 
-on:
-  schedule:
-    # UTC 時間；香港時間 = UTC+8。下面 = 香港時間每小時的 08 分
-    - cron: "8 * * * *"
-  workflow_dispatch:
-    inputs:
-      dry_run:
-        description: "只預覽、唔真的發送"
-        type: boolean
-        default: false
+settings:
+  # 每次推送最多幾單新聞（各版塊相加）
+  max_total: 20
+  # 同一個版塊入面，同一間媒體最多出幾單（避免單一媒體洗版）
+  max_per_source: 3
+  # 兩次推送之間最短相隔幾多分鐘（防止 GitHub cron + cron-job.org 重複推）
+  min_interval_minutes: 45
+  # 只推送呢個小時數內發佈 / 更新的新聞（舊嘢唔推）
+  max_age_hours: 12
+  # 相似標題視為「同一單新聞」的門檻（0–1，越大越嚴）
+  dupe_threshold: 0.42
+  # 標題最少要有幾多成中文字先當中文（濾走英文新聞）
+  cjk_min_ratio: 0.25
+  # 冇新新聞時唔好出空訊息
+  skip_if_empty: true
 
-permissions:
-  contents: write
+# 版塊：決定推送順序、數量同開關
+sections:
+  - key: hk
+    title: "🇭🇰 香港"
+    limit: 10
+    enabled: true
+  - key: world
+    title: "🌍 國際"
+    limit: 10
+    enabled: true
+  - key: finance
+    title: "💰 財經"
+    limit: 3
+    enabled: false      # 想要財經版塊改做 true
+  - key: tech
+    title: "🔬 科技"
+    limit: 3
+    enabled: false      # 想要科技版塊改做 true
 
-concurrency:
-  group: hourly-news
-  cancel-in-progress: false
+# 同一單新聞有幾間媒體報道時，優先顯示邊間（越前越優先）
+source_priority:
+  - 香港電台
+  - RTHK
+  - 香港01
+  - 明報
+  - 星島頭條
+  - 星島
+  - 信報
+  - 東方日報
+  - 有線新聞
+  - Now 新聞
+  - 香港經濟日報
+  - 頭條日報
+  - BBC
+  - 德國之聲
+  - RFI
+  - 美國之音
+  - 中央社
+  - 公視
+  - 聯合報
+  - 自由時報
+  - ETtoday
+  - Yahoo
+  - Google News
 
-jobs:
-  push-news:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    env:
-      TZ: Asia/Hong_Kong
-    steps:
-      - name: 取出程式碼
-        uses: actions/checkout@v4
+# 自動判斷「呢單係香港新聞定國際新聞」
+classify:
+  # 標題有這些字 → 明顯係外地事件（即使由香港媒體報道，都歸國際版）
+  foreign_title_keywords:
+    - 美國
+    - 中國
+    - 內地
+    - 大陸
+    - 台灣
+    - 台北
+    - 高雄
+    - 日本
+    - 東京
+    - 韓國
+    - 首爾
+    - 北韓
+    - 平壤
+    - 俄羅斯
+    - 莫斯科
+    - 烏克蘭
+    - 基輔
+    - 以色列
+    - 加沙
+    - 伊朗
+    - 伊拉克
+    - 敘利亞
+    - 法國
+    - 巴黎
+    - 德國
+    - 柏林
+    - 英國
+    - 倫敦
+    - 歐盟
+    - 北約
+    - 聯合國
+    - 印度
+    - 東盟
+    - 澳洲
+    - 特朗普
+    - 普京
+    - 澤連斯基
+    - 習近平
+    - 白宮
+    - 五角大廈
+    - 加州
+    - 紐約
+  # 來源名有這些字 → 香港新聞
+  hk_source_keywords:
+    - 香港01
+    - 香港電台
+    - RTHK
+    - 星島頭條
+    - 頭條日報
+    - 明報
+    - 東方日報
+    - 信報
+    - Now 新聞
+    - 有線新聞
+    - 香港經濟日報
+    - 巴士的報
+    - 點新聞
+    - 香港商報
+    - 文匯報
+    - 大公報
+    - 無綫
+    - TVB
+    - 橙新聞
+    - 香港
+    - 港聞
+    - 港股
+  # 來源名有這些字 → 海外華文媒體，一律唔當香港新聞
+  overseas_source_keywords:
+    - 加拿大
+    - 溫哥華
+    - 多倫多
+    - 卡加利
+    - 美西
+    - 美東
+    - 紐約
+    - 三藩市
+    - 舊金山
+    - 洛杉磯
+    - 澳洲
+    - 悉尼
+    - 墨爾本
+    - 紐西蘭
+    - 英國
+    - 倫敦
+    - 新加坡
+    - 馬來西亞
+    - 歐洲
+  # 標題有這些字 → 香港新聞
+  hk_title_keywords:
+    - 香港
+    - 港鐵
+    - 港島
+    - 九龍
+    - 新界
+    - 屯門
+    - 沙田
+    - 荃灣
+    - 觀塘
+    - 元朗
+    - 大埔
+    - 旺角
+    - 中環
+    - 灣仔
+    - 銅鑼灣
+    - 深水埗
+    - 將軍澳
+    - 天水圍
+    - 機場
+    - 特區政府
+    - 特首
+    - 行政長官
+    - 立法會
+    - 區議會
+    - 議員
+    - 政府總部
+    - 房屋局
+    - 房委會
+    - 公屋
+    - 居屋
+    - 醫管局
+    - 康文署
+    - 入境處
+    - 海關
+    - 警務處
+    - 警方
+    - 廉政公署
+    - 天文台
+    - 施政報告
+    - 財政預算案
+    - 財政司
+    - 恒指
+    - 港交所
+    - 北水
+    - 強積金
+    - 皇崗
+    - 深圳灣
+    - 高鐵西九
 
-      # 去重記錄：優先由 cache 還原，就算 repo 冇 state/ 都唔會出事
-      - name: 還原去重記錄
-        uses: actions/cache@v4
-        with:
-          path: state
-          key: news-state-${{ github.run_id }}
-          restore-keys: |
-            news-state-
-
-      # 診斷：淨用內建指令，就算 pip 衰咗都跑到，用嚟睇檔案結構同 Secrets 狀態
-      - name: 環境診斷
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_IDS: ${{ secrets.TELEGRAM_CHAT_IDS }}
-        run: |
-          echo "=== 工作目錄 ==="
-          pwd
-          echo "=== 檔案結構 ==="
-          find . -maxdepth 3 -not -path './.git/*' -not -path '*/__pycache__*' | sort | head -60
-          echo "=== Python 版本 ==="
-          python3 --version
-          echo "=== Secrets 狀態（只顯示長度，唔會洩漏內容）==="
-          python3 - <<'PY'
-          import os
-          for k in ["TELEGRAM_BOT_TOKEN", "TELEGRAM_CHAT_IDS"]:
-              v = os.environ.get(k, "") or ""
-              print(f"  {k}: {'✅ 已設定（長度 ' + str(len(v)) + '）' if v else '❌ 冇設定 / 名唔啱'}")
-          PY
-
-      - name: 設定 Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-          cache: pip
-
-      - name: 安裝套件
-        run: pip install -r requirements.txt
-
-      # 體檢：驗 Token、Chat ID、Bot 權限；只印長度同名稱，唔會洩漏秘密
-      - name: 檢查設定
-        continue-on-error: true
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_IDS: ${{ secrets.TELEGRAM_CHAT_IDS }}
-        run: python check_setup.py
-
-      - name: 抓取並推送新聞
-        env:
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
-          TELEGRAM_CHAT_IDS: ${{ secrets.TELEGRAM_CHAT_IDS }}
-          # 以下全部可選，唔設定就用 config.yaml 嘅預設值
-          MAX_TOTAL: ${{ vars.MAX_TOTAL }}
-          MAX_AGE_HOURS: ${{ vars.MAX_AGE_HOURS }}
-          SECTIONS: ${{ vars.SECTIONS }}
-          MODE: ${{ vars.MODE }}
-          QUIET_HOURS: ${{ vars.QUIET_HOURS }}
-          DISABLE_PREVIEW: ${{ vars.DISABLE_PREVIEW }}
-        run: |
-          if [ "${{ inputs.dry_run }}" = "true" ]; then
-            python main.py --dry-run
-          else
-            python main.py
-          fi
-
-      - name: 儲存去重記錄（避免重複推送）
-        if: always()
-        continue-on-error: true
-        run: |
-          mkdir -p state
-          if [ ! -f state/sent.json ]; then
-            echo '{"updated": null, "count": 0, "sent": {}}' > state/sent.json
-          fi
-          git config user.name "news-bot"
-          git config user.email "news-bot@users.noreply.github.com"
-          git add state/sent.json
-          if git diff --staged --quiet; then
-            echo "去重記錄冇變動，唔使 commit"
-          else
-            git commit -m "chore: update news state [skip ci]"
-            for i in 1 2 3; do
-              git pull --rebase --autostash origin "${GITHUB_REF_NAME}" && git push && break
-              echo "push 失敗，重試 $i…"
-              sleep 5
-            done
-          fi
+# 國際版塊專用：邊間媒體優先（國際通訊社行先，香港媒體報道國際新聞排後）
+world_source_priority:
+  - BBC
+  - 德國之聲
+  - RFI
+  - 美國之音
