@@ -32,7 +32,28 @@ def call(token: str, method: str, **params) -> dict:
         return {"ok": False, "description": f"HTTP {resp.status_code}"}
 
 
+def show_files() -> None:
+    """印出檔案結構，用嚟確認有冇 upload 錯位置。"""
+    print("\n【0】檔案結構（工作目錄：%s）" % os.getcwd())
+    skip = {".git", "__pycache__", ".venv", "venv"}
+    shown = 0
+    for root, dirs, files in os.walk("."):
+        dirs[:] = sorted(d for d in dirs if d not in skip)
+        depth = root.count(os.sep)
+        if depth > 2:
+            continue
+        indent = "  " * (depth + 1)
+        print(f"{indent}{os.path.basename(root) or '.'}/")
+        for f in sorted(files):
+            print(f"{indent}  {f}")
+            shown += 1
+            if shown > 45:
+                print(f"{indent}  …（仲有更多）")
+                return
+
+
 def main() -> int:
+    show_files()
     token = os.environ.get("TELEGRAM_BOT_TOKEN", "").strip()
     chats_raw = os.environ.get("TELEGRAM_CHAT_IDS", "").strip()
 
