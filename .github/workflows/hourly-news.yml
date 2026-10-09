@@ -64,13 +64,10 @@ jobs:
 
       - name: 安裝套件
         run: |
-          if [ -f requirements.txt ]; then
-            echo "✅ 搵到 requirements.txt，照住裝"
-            pip install -r requirements.txt
-          else
-            echo "⚠️ 搵唔到 requirements.txt，改為直接裝所需套件"
-            pip install feedparser requests PyYAML python-dotenv
-          fi
+          python -m pip install --upgrade pip
+          pip install feedparser requests PyYAML python-dotenv
+          echo "=== 驗證套件裝好未 ==="
+          python -c "import feedparser, requests, yaml; print('✅ feedparser / requests / PyYAML 全部就緒')"
 
       # 體檢：驗 Token、Chat ID、Bot 權限；只印長度同名稱，唔會洩漏秘密
       - name: 檢查設定
@@ -86,36 +83,4 @@ jobs:
           TELEGRAM_CHAT_IDS: ${{ secrets.TELEGRAM_CHAT_IDS }}
           # 以下全部可選，唔設定就用 config.yaml 嘅預設值
           MAX_TOTAL: ${{ vars.MAX_TOTAL }}
-          MAX_AGE_HOURS: ${{ vars.MAX_AGE_HOURS }}
-          SECTIONS: ${{ vars.SECTIONS }}
-          MODE: ${{ vars.MODE }}
-          QUIET_HOURS: ${{ vars.QUIET_HOURS }}
-          DISABLE_PREVIEW: ${{ vars.DISABLE_PREVIEW }}
-        run: |
-          if [ "${{ inputs.dry_run }}" = "true" ]; then
-            python main.py --dry-run
-          else
-            python main.py
-          fi
-
-      - name: 儲存去重記錄（避免重複推送）
-        if: always()
-        continue-on-error: true
-        run: |
-          mkdir -p state
-          if [ ! -f state/sent.json ]; then
-            echo '{"updated": null, "count": 0, "sent": {}}' > state/sent.json
-          fi
-          git config user.name "news-bot"
-          git config user.email "news-bot@users.noreply.github.com"
-          git add state/sent.json
-          if git diff --staged --quiet; then
-            echo "去重記錄冇變動，唔使 commit"
-          else
-            git commit -m "chore: update news state [skip ci]"
-            for i in 1 2 3; do
-              git pull --rebase --autostash origin "${GITHUB_REF_NAME}" && git push && break
-              echo "push 失敗，重試 $i…"
-              sleep 5
-            done
-          fi
+          MAX_AGE_HOURS: ${{ 
