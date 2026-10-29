@@ -1,49 +1,49 @@
 === 時間 (HKT) ===
-Thu Oct 29 12:00:27 HKT 2026
+Thu Oct 29 14:57:59 HKT 2026
 === 檔案清單 ===
 total 80
-drwxr-xr-x 5 runner runner  4096 Oct 29 04:00 .
-drwxr-xr-x 3 runner runner  4096 Oct 29 04:00 ..
-drwxr-xr-x 7 runner runner  4096 Oct 29 04:00 .git
-drwxr-xr-x 3 runner runner  4096 Oct 29 04:00 .github
--rw-r--r-- 1 runner runner    71 Oct 29 04:00 diag.txt
--rw-r--r-- 1 runner runner 49333 Oct 29 04:00 main.py
--rw-r--r-- 1 runner runner    69 Oct 29 04:00 requirements.txt
-drwxr-xr-x 2 runner runner  4096 Oct 29 00:48 state
+drwxr-xr-x 5 runner runner  4096 Oct 29 06:57 .
+drwxr-xr-x 3 runner runner  4096 Oct 29 06:57 ..
+drwxr-xr-x 7 runner runner  4096 Oct 29 06:57 .git
+drwxr-xr-x 3 runner runner  4096 Oct 29 06:57 .github
+-rw-r--r-- 1 runner runner    71 Oct 29 06:58 diag.txt
+-rw-r--r-- 1 runner runner 49333 Oct 29 06:57 main.py
+-rw-r--r-- 1 runner runner    69 Oct 29 06:57 requirements.txt
+drwxr-xr-x 2 runner runner  4096 Oct 29 04:00 state
 === Secrets 狀態（只顯示長度）===
   TELEGRAM_BOT_TOKEN 46
   TELEGRAM_CHAT_IDS 10
 === 執行 main.py ===
-04:00:28 [WARNING] 搵唔到 config.yaml，改用內置設定
-04:00:28 [INFO] 抓取 22 個新聞來源…
-04:00:28 [INFO]   ✓ 自由時報                         40 則
-04:00:28 [INFO]   ✓ RFI 法國國際廣播（中文）               30 則
-04:00:28 [INFO]   ✓ 中央社 · 政治                     20 則
-04:00:28 [INFO]   ✓ BBC 中文                       38 則
-04:00:28 [INFO]   ✓ 中央社 · 文化                     20 則
-04:00:28 [INFO]   ✓ Google 新聞 · 國際               70 則
-04:00:28 [INFO]   ✓ ETtoday 新聞雲                  50 則
-04:00:28 [INFO]   ✓ Google 新聞 · 兩岸               46 則
-04:00:28 [INFO]   ✓ 美國之音中文                       20 則
-04:00:28 [INFO]   ✓ Google 新聞 · 香港突發             23 則
-04:00:28 [INFO]   ✓ 中央社 · 財經                     20 則
-04:00:29 [INFO]   ✓ Google 新聞 · 香港頭條             30 則
-04:00:29 [INFO]   ✓ Google 新聞 · 科技               58 則
-04:00:29 [INFO]   ✓ 德國之聲中文                       60 則
-04:00:29 [INFO]   ✓ 公視新聞網                        25 則
-04:00:29 [INFO]   ✓ 中央社 · 科技                     20 則
-04:00:29 [INFO]   ✓ Google 新聞 · 香港電台             100 則
-04:00:29 [INFO]   ✓ Google 新聞 · 香港 01            100 則
-04:00:29 [INFO]   ✓ Google 新聞 · 港股財經             99 則
-04:00:29 [INFO]   ✓ Google 新聞 · 星島頭條             100 則
-04:00:29 [INFO]   ✓ Google 新聞 · 財經               70 則
-04:00:29 [INFO]   ✓ Google 新聞 · 港聞               70 則
-04:00:29 [INFO] 共抓到 1109 則原始新聞
-04:00:29 [INFO] 過濾：剩 401 則（剔走：非中文 7／太舊 620／廣告 36／黑名單媒體 45／太短 0）
-04:00:29 [INFO] 重新分類：香港 164 則 ／ 國際 237 則
-04:00:29 [INFO] 合併後共 368 單新聞（原本 387 則報道）
-04:00:29 [INFO] 扣除已推送，剩 336 單新新聞
-04:00:31 [INFO] ✅ 已推送 2 則訊息到 1 個目標
-04:00:31 [INFO] 已儲存 1093 條已推送記錄 → /home/runner/work/hk-news-bot/hk-news-bot/state/sent.json
-04:00:31 [INFO] 完成：推送 20 單新聞
+06:58:00 [WARNING] 搵唔到 config.yaml，改用內置設定
+06:58:00 [INFO] 抓取 22 個新聞來源…
+06:58:00 [INFO]   ✓ RFI 法國國際廣播（中文）               30 則
+06:58:00 [INFO]   ✓ 自由時報                         40 則
+06:58:00 [INFO]   ✓ 中央社 · 政治                     20 則
+06:58:00 [INFO]   ✓ ETtoday 新聞雲                  50 則
+06:58:00 [INFO]   ✓ 美國之音中文                       20 則
+06:58:00 [INFO]   ✓ 中央社 · 文化                     20 則
+06:58:00 [INFO]   ✓ 公視新聞網                        25 則
+06:58:00 [INFO]   ✓ BBC 中文                       38 則
+06:58:00 [INFO]   ✓ 中央社 · 財經                     20 則
+06:58:00 [INFO]   ✓ 中央社 · 科技                     20 則
+06:58:00 [INFO]   ✓ Google 新聞 · 香港突發             31 則
+06:58:01 [INFO]   ✓ 德國之聲中文                       60 則
+06:58:01 [INFO]   ✓ Google 新聞 · 兩岸               48 則
+06:58:01 [INFO]   ✓ Google 新聞 · 香港電台             100 則
+06:58:01 [INFO]   ✓ Google 新聞 · 港股財經             100 則
+06:58:01 [INFO]   ✓ Google 新聞 · 星島頭條             100 則
+06:58:01 [INFO]   ✓ Google 新聞 · 香港頭條             30 則
+06:58:01 [INFO]   ✓ Google 新聞 · 科技               59 則
+06:58:01 [INFO]   ✓ Google 新聞 · 香港 01            100 則
+06:58:01 [INFO]   ✓ Google 新聞 · 國際               70 則
+06:58:01 [INFO]   ✓ Google 新聞 · 港聞               70 則
+06:58:01 [INFO]   ✓ Google 新聞 · 財經               70 則
+06:58:01 [INFO] 共抓到 1121 則原始新聞
+06:58:01 [INFO] 過濾：剩 475 則（剔走：非中文 4／太舊 547／廣告 42／黑名單媒體 52／太短 1）
+06:58:01 [INFO] 重新分類：香港 201 則 ／ 國際 274 則
+06:58:02 [INFO] 合併後共 425 單新聞（原本 451 則報道）
+06:58:02 [INFO] 扣除已推送，剩 392 單新新聞
+06:58:04 [INFO] ✅ 已推送 3 則訊息到 1 個目標
+06:58:04 [INFO] 已儲存 1113 條已推送記錄 → /home/runner/work/hk-news-bot/hk-news-bot/state/sent.json
+06:58:04 [INFO] 完成：推送 20 單新聞
 === exit code = 0 ===
